@@ -2,13 +2,17 @@
  *
  * Entry point of the application
  * Initializes Express, connects to MongoDB, and registers all routes
- *  
+ * 
  * **/
 
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 require('dotenv').config()
+
+// register models
+require('./models/Task')
+require('./models/Project')
 
 const app = express()
 
@@ -18,6 +22,9 @@ app.use(express.json()) // parse Json from request body
 
 // Routes
 app.use('/api/auth', require('./routes/auth'))
+app.use('/api/projects', require('./routes/projects'))
+app.use('/api/tasks', require('./routes/tasks'))
+
 
 // Connecting to MongoDB
 mongoose.connect(process.env.MONGO_URI)
