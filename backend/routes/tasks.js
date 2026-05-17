@@ -10,6 +10,8 @@ const Task = require('../models/Task')
 const Project = require('../models/Project')
 const authMiddleware = require('../middleware/auth')
 const validateTask = require('../middleware/validateTask')
+const logActivity = require('../utils/logActivity')
+
 
 //  GET MY ASSIGNED TASKS (for dashboard) 
 router.get('/my-tasks', authMiddleware, async (req, res) => {
@@ -87,8 +89,11 @@ router.post('/', authMiddleware, validateTask, async (req, res) => {
 
     const task = new Task({ title, description, priority, status, deadline, project })
     await task.save()
-    res.status(201).json(task)
 
+    // log activity
+    await logActivity('task_created', project, req.user.id, `Task "${title}" was created`)
+
+    res.status(201).json(task)
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message })
   }
@@ -125,8 +130,11 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
     )
 
     if (!task) return res.status(404).json({ message: 'Task not found' })
-    res.json(task)
 
+    // log activity
+    await logActivity('task_status_changed', task.project, req.user.id, `Task "${task.title}" status changed to "${status}"`)
+
+    res.json(task)
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message })
   }
@@ -156,8 +164,11 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const task = await Task.findByIdAndDelete(req.params.id)
     if (!task) return res.status(404).json({ message: 'Task not found' })
-    res.json({ message: 'Task deleted successfully' })
 
+    // log activity
+    await logActivity('task_deleted', task.project, req.user.id, `Task "${task.title}" was deleted`)
+
+    res.json({ message: 'Task deleted successfully' })
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message })
   }

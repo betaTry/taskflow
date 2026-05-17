@@ -11,6 +11,8 @@ const router = require('express').Router()
 const Project = require('../models/Project')
 const User = require('../models/User')
 const authMiddleware = require('../middleware/auth')
+const logActivity = require('../utils/logActivity')
+
 
 //  INVITE MEMBER BY EMAIL 
 router.post('/:projectId/members', authMiddleware, async (req, res) => {
@@ -36,7 +38,8 @@ router.post('/:projectId/members', authMiddleware, async (req, res) => {
     // 4. add to members array
     project.members.push(userToAdd._id)
     await project.save()
-
+    await logActivity('member_added', project._id, req.user.id, `${userToAdd.fullName} was added to the project`)
+    
     res.json({ message: 'Member added successfully', project })
 
   } catch (err) {
@@ -59,6 +62,7 @@ router.delete('/:projectId/members/:userId', authMiddleware, async (req, res) =>
       memberId => memberId.toString() !== req.params.userId
     )
     await project.save()
+    await logActivity('member_removed', project._id, req.user.id, `Member was removed from the project`)
 
     res.json({ message: 'Member removed successfully', project })
 
