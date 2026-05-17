@@ -27,6 +27,7 @@ app.use('/api/projects', require('./routes/members'))
 app.use('/api/tasks', require('./routes/tasks'))
 app.use('/api/dashboard', require('./routes/dashboard'))
 app.use('/api/projects', require('./routes/activities'))
+app.use('/api/notifications', require('./routes/notifications'))
 
 
 

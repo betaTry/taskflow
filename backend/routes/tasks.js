@@ -11,6 +11,7 @@ const Project = require('../models/Project')
 const authMiddleware = require('../middleware/auth')
 const validateTask = require('../middleware/validateTask')
 const logActivity = require('../utils/logActivity')
+const createNotification = require('../utils/createNotification')
 
 
 //  GET MY ASSIGNED TASKS (for dashboard) 
@@ -134,6 +135,16 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
     // log activity
     await logActivity('task_status_changed', task.project, req.user.id, `Task "${task.title}" status changed to "${status}"`)
 
+    // notify the assigned user about status change
+    if (task.assignedTo) {
+      await createNotification(
+        task.assignedTo,
+        `Task "${task.title}" status changed to "${status}"`,
+        task.project,
+        task._id
+      )
+    }
+
     res.json(task)
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message })
@@ -152,8 +163,16 @@ router.patch('/:id/assign', authMiddleware, async (req, res) => {
     ).populate('assignedTo', 'fullName email')
 
     if (!task) return res.status(404).json({ message: 'Task not found' })
-    res.json(task)
 
+    // notify the assigned user
+    await createNotification(
+      userId,
+      `You have been assigned to task "${task.title}"`,
+      task.project,
+      task._id
+    )
+
+    res.json(task)
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message })
   }

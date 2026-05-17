@@ -12,7 +12,7 @@ const Project = require('../models/Project')
 const User = require('../models/User')
 const authMiddleware = require('../middleware/auth')
 const logActivity = require('../utils/logActivity')
-
+const createNotification = require('../utils/createNotification')
 
 //  INVITE MEMBER BY EMAIL 
 router.post('/:projectId/members', authMiddleware, async (req, res) => {
@@ -39,7 +39,12 @@ router.post('/:projectId/members', authMiddleware, async (req, res) => {
     project.members.push(userToAdd._id)
     await project.save()
     await logActivity('member_added', project._id, req.user.id, `${userToAdd.fullName} was added to the project`)
-    
+    // notify the invited user
+    await createNotification(
+      userToAdd._id,
+      'You have been added to a project',
+      project._id
+    )
     res.json({ message: 'Member added successfully', project })
 
   } catch (err) {
