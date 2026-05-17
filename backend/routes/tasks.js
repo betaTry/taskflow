@@ -24,14 +24,41 @@ router.get('/my-tasks', authMiddleware, async (req, res) => {
   }
 })
 
-//  GET ALL TASKS FOR A PROJECT 
+// ─── GET ALL TASKS FOR A PROJECT (with filtering & pagination) ───
 router.get('/project/:projectId', authMiddleware, async (req, res) => {
   try {
-    const tasks = await Task.find({ project: req.params.projectId })
+    const { status, priority, assignedTo, search, page = 1, limit = 10 } = req.query
+
+    // build filter conditionally — only add condition if param exists
+    const filter = { project: req.params.projectId }
+
+    if (status) filter.status = status
+    if (priority) filter.priority = priority
+    if (assignedTo) filter.assignedTo = assignedTo
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ]
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit)
+
+    const tasks = await Task.find(filter)
       .populate('assignedTo', 'fullName email')
+      .skip(skip)
+      .limit(parseInt(limit))
       .sort({ createdAt: -1 })
 
-    res.json(tasks)
+    const total = await Task.countDocuments(filter)
+
+    res.json({
+      data: tasks,
+      total,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit))
+    })
+
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message })
   }
