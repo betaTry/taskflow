@@ -439,7 +439,7 @@ document.getElementById('createProjectBtn')?.addEventListener('click', async () 
   const desc     = document.getElementById('npDesc')?.value.trim();
   const startDate = document.getElementById('npStart')?.value;
   const endDate   = document.getElementById('npEnd')?.value;
-  const priority  = document.getElementById('npPriority')?.value;
+  const status    = document.getElementById('pStatus')?.value;
 
   if (!name) {
     toast.warning('Name required', 'Please enter a project name.');
@@ -452,7 +452,7 @@ document.getElementById('createProjectBtn')?.addEventListener('click', async () 
   btn.textContent = 'Creating…';
 
   try {
-    const res = await axios.post('/api/projects', { title: name, description: desc, startDate, endDate, priority });
+    const res = await axios.post('/api/projects', { title: name, description: desc, startDate, deadline: endDate, status });
     const project = res.data.project || res.data;
 
     toast.success('Project created! 🎉', `"${name}" is ready.`);
