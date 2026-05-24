@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — TaskFlow</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- App Shell -->
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚡</div>
+      <span>TaskFlow</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Main</span>
+      <a href="dashboard.html" class="nav-item active">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="projects.html" class="nav-item">
+        <span class="nav-icon">📁</span> Projects
+        <span class="nav-badge" id="projectCount">—</span>
+      </a>
+      <a href="tasks.html" class="nav-item" id="navTasks">
+        <span class="nav-icon">✅</span> My Tasks
+        <span class="nav-badge" id="taskCount">—</span>
+      </a>
+
+      <span class="nav-section-label" style="margin-top:8px">Workspace</span>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">👥</span> Team
+      </a>
+      <a href="notifications.html" class="nav-item" id="navNotifs">
+        <span class="nav-icon">🔔</span> Notifications
+        <span class="nav-badge" id="notifBadge" style="display:none"></span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card" id="userCard">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading…</div>
+          <div class="user-role" id="userRole">Member</div>
+        </div>
+        <button class="icon-btn" id="logoutBtn" title="Logout" style="border:none;background:none;width:26px;height:26px;font-size:.85rem;color:var(--text-muted)">🚪</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+      <span class="topbar-title">Dashboard</span>
+
+      <div class="topbar-search">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search projects & tasks…" id="globalSearch" />
+      </div>
+
+      <div class="topbar-actions">
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <button class="icon-btn" id="notifBtn" title="Notifications">
+          🔔
+          <span class="notif-dot" id="notifDot" style="display:none"></span>
+        </button>
+        <button class="btn btn-primary btn-sm" id="newProjectBtn">＋ New Project</button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <main class="page-body">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner fade-up" id="welcomeBanner">
+        <div class="welcome-greeting">Good morning 👋</div>
+        <div class="welcome-name" id="welcomeName"></div>
+        <div class="welcome-sub" id="welcomeSub">Here's what's happening with your projects today.</div>
+        <div class="welcome-actions">
+          <button class="btn-white-solid" id="bannerNewProject">＋ New Project</button>
+          <a href="projects.html" class="btn-white">View All →</a>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid fade-up fade-up-1" id="statsGrid">
+        <!-- Injected by JS -->
+        <div class="stat-card"><div class="skeleton" style="width:50px;height:50px;border-radius:14px"></div><div style="flex:1"><div class="skeleton" style="height:28px;width:60%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:80%"></div></div></div>
+        <div class="stat-card"><div class="skeleton" style="width:50px;height:50px;border-radius:14px"></div><div style="flex:1"><div class="skeleton" style="height:28px;width:60%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:80%"></div></div></div>
+        <div class="stat-card"><div class="skeleton" style="width:50px;height:50px;border-radius:14px"></div><div style="flex:1"><div class="skeleton" style="height:28px;width:60%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:80%"></div></div></div>
+        <div class="stat-card"><div class="skeleton" style="width:50px;height:50px;border-radius:14px"></div><div style="flex:1"><div class="skeleton" style="height:28px;width:60%;margin-bottom:6px"></div><div class="skeleton" style="height:14px;width:80%"></div></div></div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions fade-up fade-up-2">
+        <button class="quick-btn" id="qaNewProject">
+          <div class="q-icon" style="background:rgba(108,99,255,.12)">📁</div>
+          New Project
+        </button>
+        <button class="quick-btn" id="qaNewTask">
+          <div class="q-icon" style="background:rgba(67,233,123,.12)">✅</div>
+          Add Task
+        </button>
+        <button class="quick-btn" id="qaInvite">
+          <div class="q-icon" style="background:rgba(247,151,30,.12)">👥</div>
+          Invite Member
+        </button>
+        <button class="quick-btn" id="qaReport">
+          <div class="q-icon" style="background:rgba(255,101,132,.12)">📊</div>
+          View Reports
+        </button>
+      </div>
+
+      <!-- Main grid -->
+      <div class="two-col fade-up fade-up-3" style="margin-bottom:20px">
+
+        <!-- Recent Projects -->
+        <div class="card" style="padding:20px">
+          <div class="section-header">
+            <span class="section-title">Recent Projects</span>
+            <a href="projects.html" class="section-link">View all →</a>
+          </div>
+          <div class="project-list" id="projectList">
+            <!-- skeleton -->
+            <div class="project-item"><div class="skeleton" style="height:40px;width:100%;border-radius:8px"></div></div>
+            <div class="project-item"><div class="skeleton" style="height:40px;width:100%;border-radius:8px"></div></div>
+            <div class="project-item"><div class="skeleton" style="height:40px;width:100%;border-radius:8px"></div></div>
+          </div>
+        </div>
+
+        <!-- Task Overview donut + legend -->
+        <div class="card" style="padding:20px">
+          <div class="section-header">
+            <span class="section-title">Task Overview</span>
+            <span class="text-muted text-sm" id="overviewTotal">—</span>
+          </div>
+          <div class="donut-wrap" id="donutWrap">
+            <div class="skeleton" style="width:110px;height:110px;border-radius:50%"></div>
+            <div style="flex:1">
+              <div class="skeleton" style="height:14px;margin-bottom:10px"></div>
+              <div class="skeleton" style="height:14px;margin-bottom:10px"></div>
+              <div class="skeleton" style="height:14px;margin-bottom:10px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Tasks + Activity -->
+      <div class="two-col fade-up fade-up-4">
+
+        <!-- My Tasks -->
+        <div class="card" style="padding:20px">
+          <div class="section-header">
+            <span class="section-title">My Tasks</span>
+            <span class="section-link" id="filterTasks" style="cursor:pointer">All</span>
+          </div>
+          <div class="task-list" id="taskList">
+            <div class="skeleton" style="height:48px;border-radius:12px;margin-bottom:10px"></div>
+            <div class="skeleton" style="height:48px;border-radius:12px;margin-bottom:10px"></div>
+            <div class="skeleton" style="height:48px;border-radius:12px"></div>
+          </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="card" style="padding:20px">
+          <div class="section-header">
+            <span class="section-title">Recent Activity</span>
+          </div>
+          <div class="activity-feed" id="activityFeed">
+            <div class="skeleton" style="height:52px;margin-bottom:8px;border-radius:8px"></div>
+            <div class="skeleton" style="height:52px;margin-bottom:8px;border-radius:8px"></div>
+            <div class="skeleton" style="height:52px;border-radius:8px"></div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- New Project Modal -->
+<div class="modal-backdrop" id="newProjectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">New Project</h2>
+      <button class="modal-close" data-close="newProjectModal">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Project Name</label>
+      <input type="text" class="form-input" id="npName" placeholder="e.g. Website Redesign" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="npDesc" placeholder="What's this project about?"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Start Date</label>
+        <input type="date" class="form-input" id="npStart" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <input type="date" class="form-input" id="npEnd" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="pStatus">
+        <option value="planning">Planning</option>
+        <option value="active" selected>Active</option>
+        <option value="on_hold">On Hold</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-outline" data-close="newProjectModal">Cancel</button>
+      <button class="btn btn-primary" id="createProjectBtn">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/axios-config.js"></script>
+<script src="/js/notifications.js"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

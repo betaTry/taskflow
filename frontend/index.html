@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow — Login</title>
+  <link rel="stylesheet" href="/css/auth.js">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="js/auth.js"></script>
+</head>
+<body>
+
+<div class="card">
+  <h1>TaskFlow</h1>
+
+  <!-- LOGIN FORM -->
+  <div id="login-form">
+    <p class="error hidden" id="login-error"></p>
+    <input type="email" id="login-email" placeholder="Email" />
+    <input type="password" id="login-password" placeholder="Password" />
+    <button onclick="handleLogin()">Login</button>
+    <p class="toggle">No account? <span onclick="showRegister()">Register</span></p>
+  </div>
+
+  <!-- REGISTER FORM -->
+  <div id="register-form" class="hidden">
+    <p class="error hidden" id="register-error"></p>
+    <input type="text" id="reg-name" placeholder="Full Name" />
+    <input type="email" id="reg-email" placeholder="Email" />
+    <input type="password" id="reg-password" placeholder="Password" />
+    <button onclick="handleRegister()">Create Account</button>
+    <p class="toggle">Already have an account? <span onclick="showLogin()">Login</span></p>
+  </div>
+</div>
+
+<script>
+  // redirect if already logged in
+  if (isLoggedIn()) window.location.href = '/dashboard.html'
+
+  function showRegister() {
+    document.getElementById('login-form').classList.add('hidden')
+    document.getElementById('register-form').classList.remove('hidden')
+  }
+
+  function showLogin() {
+    document.getElementById('register-form').classList.add('hidden')
+    document.getElementById('login-form').classList.remove('hidden')
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById('login-email').value
+    const password = document.getElementById('login-password').value
+    const errorEl = document.getElementById('login-error')
+
+    try {
+      await login(email, password)
+      window.location.href = '/dashboard.html'
+    } catch (err) {
+      errorEl.textContent = err.message || 'Login failed'
+      errorEl.classList.remove('hidden')
+    }
+  }
+
+  async function handleRegister() {
+    const fullName = document.getElementById('reg-name').value
+    const email = document.getElementById('reg-email').value
+    const password = document.getElementById('reg-password').value
+    const errorEl = document.getElementById('register-error')
+
+    try {
+      await register(fullName, email, password)
+      await login(email, password)
+      window.location.href = '/dashboard.html'
+    } catch (err) {
+      errorEl.textContent = err.message || 'Registration failed'
+      errorEl.classList.remove('hidden')
+    }
+  }
+</script>
+
+</body>
+</html>

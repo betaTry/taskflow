@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects — TaskFlow</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/projects.css">
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚡</div>
+      <span>TaskFlow</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Main</span>
+      <a href="dashboard.html" class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="projects.html" class="nav-item active">
+        <span class="nav-icon">📁</span> Projects
+        <span class="nav-badge" id="projectCount">—</span>
+      </a>
+      <a href="tasks.html" class="nav-item" id="navTasks">
+        <span class="nav-icon">✅</span> My Tasks
+        <span class="nav-badge" id="taskCount">—</span>
+      </a>
+
+      <span class="nav-section-label" style="margin-top:8px">Workspace</span>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">👥</span> Team
+      </a>
+      <a href="notifications.html" class="nav-item" id="navNotifs">
+        <span class="nav-icon">🔔</span> Notifications
+        <span class="nav-badge" id="notifBadge" style="display:none"></span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card" id="userCard">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading…</div>
+          <div class="user-role" id="userRole">Member</div>
+        </div>
+        <button class="icon-btn" id="logoutBtn" title="Logout" style="border:none;background:none;width:26px;height:26px;font-size:.85rem;color:var(--text-muted)">🚪</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+      <span class="topbar-title">Projects</span>
+      <div class="topbar-search">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search projects…" id="topbarSearch" />
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <button class="icon-btn" id="notifBtn" title="Notifications">
+          🔔
+          <span class="notif-dot" id="notifDot" style="display:none"></span>
+        </button>
+        <button class="btn btn-primary btn-sm" id="newProjectBtn">＋ New Project</button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <main class="page-body">
+
+      <!-- Header -->
+      <div class="page-header fade-up">
+        <div>
+          <h1>Projects</h1>
+          <p id="projectSubtitle">Loading your projects…</p>
+        </div>
+        <button class="btn btn-primary" id="newProjectBtn2">＋ New Project</button>
+      </div>
+
+      <!-- Stats chips -->
+      <div class="projects-stats fade-up fade-up-1" id="projectsStats">
+        <div class="pstat-chip"><div class="dot" style="background:var(--accent-1)"></div><span id="statAll">— Total</span></div>
+        <div class="pstat-chip"><div class="dot" style="background:var(--accent-3)"></div><span id="statActive">— Active</span></div>
+        <div class="pstat-chip"><div class="dot" style="background:var(--accent-4)"></div><span id="statPlanning">— Planning</span></div>
+        <div class="pstat-chip"><div class="dot" style="background:var(--text-muted)"></div><span id="statDone">— Completed</span></div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar fade-up fade-up-2">
+        <div class="toolbar-search">
+          <span class="s-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search projects…" />
+        </div>
+
+        <div class="filter-tabs" id="filterTabs">
+          <div class="filter-tab active" data-filter="all">All</div>
+          <div class="filter-tab" data-filter="active">Active</div>
+          <div class="filter-tab" data-filter="completed">Done</div>
+          <div class="filter-tab" data-filter="on_hold">On Hold</div>
+        </div>
+
+        <select class="sort-select" id="sortSelect">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="name">Name A–Z</option>
+          <option value="progress">Progress</option>
+        </select>
+
+        <div class="view-toggle">
+          <div class="view-btn active" id="gridViewBtn" title="Grid view">⊞</div>
+          <div class="view-btn" id="listViewBtn" title="List view">☰</div>
+        </div>
+      </div>
+
+      <!-- Grid View -->
+      <div class="projects-grid fade-up fade-up-3" id="projectsGrid">
+        <!-- Skeletons -->
+        <div class="project-card"><div class="skeleton" style="height:180px;border-radius:12px"></div></div>
+        <div class="project-card"><div class="skeleton" style="height:180px;border-radius:12px"></div></div>
+        <div class="project-card"><div class="skeleton" style="height:180px;border-radius:12px"></div></div>
+      </div>
+
+      <!-- List View -->
+      <div class="projects-list-view hidden fade-up fade-up-3" id="projectsListView"></div>
+
+    </main>
+  </div>
+</div>
+
+<!-- New / Edit Project Modal -->
+<div class="modal-backdrop" id="projectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">New Project</h2>
+      <button class="modal-close" data-close="projectModal">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Project Name *</label>
+      <input type="text" class="form-input" id="pName" placeholder="e.g. Website Redesign" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="pDesc" placeholder="What's this project about?"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Start Date</label>
+        <input type="date" class="form-input" id="pStart" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <input type="date" class="form-input" id="pEnd" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="epStatus">
+        <option value="actif">Active</option>
+        <option value="en pause">On Hold</option>
+        <option value="archivé">Archived</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-outline" data-close="projectModal">Cancel</button>
+      <button class="btn btn-primary" id="saveProjectBtn">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-backdrop" id="deleteModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2 class="modal-title">Delete Project</h2>
+      <button class="modal-close" data-close="deleteModal">✕</button>
+    </div>
+    <p style="color:var(--text-muted);margin-bottom:24px;font-size:.92rem">
+      Are you sure you want to delete <strong id="deleteProjectName"></strong>? This action cannot be undone and will remove all tasks inside.
+    </p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-outline" data-close="deleteModal">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/axios-config.js"></script>
+<script src="/js/notifications.js"></script>
+<script src="/js/projects.js"></script>
+<!-- <script src="/js/dashboard.js"></script> -->
+</body>
+</html>

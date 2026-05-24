@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications — TaskFlow</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/notifications.css">
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚡</div>
+      <span>TaskFlow</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Main</span>
+      <a href="dashboard.html" class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="projects.html" class="nav-item">
+        <span class="nav-icon">📁</span> Projects
+        <span class="nav-badge" id="projectCount">—</span>
+      </a>
+      <a href="tasks.html" class="nav-item" id="navTasks">
+        <span class="nav-icon">✅</span> My Tasks
+        <span class="nav-badge" id="taskCount">—</span>
+      </a>
+
+      <span class="nav-section-label" style="margin-top:8px">Workspace</span>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">👥</span> Team
+      </a>
+      <a href="notifications.html" class="nav-item active" id="navNotifs">
+        <span class="nav-icon">🔔</span> Notifications
+        <span class="nav-badge" id="notifBadge" style="display:none"></span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card" id="userCard">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading…</div>
+          <div class="user-role" id="userRole">Member</div>
+        </div>
+        <button class="icon-btn" id="logoutBtn" title="Logout" style="border:none;background:none;width:26px;height:26px;font-size:.85rem;color:var(--text-muted)">🚪</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+      <span class="topbar-title">Notifications</span>
+      <div class="topbar-actions" style="margin-left:auto">
+        <button class="icon-btn" id="themeToggle">&#127769;</button>
+        <button class="icon-btn" id="notifBtn">
+          &#128276;
+          <span class="notif-dot" id="notifDot" style="display:none"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <main class="page-body">
+
+      <div class="page-header fade-up">
+        <div>
+          <h1>Notifications</h1>
+          <p id="pageSubtitle">Loading...</p>
+        </div>
+        <button class="btn btn-outline" id="markAllBtn">&#10003; Mark all as read</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="notif-tabs fade-up fade-up-1" id="notifTabs">
+        <div class="notif-tab active" data-tab="unread">Unread <span id="unreadCount"></span></div>
+        <div class="notif-tab" data-tab="archived">Archived</div>
+      </div>
+
+      <!-- Unread Panel -->
+      <div id="panel-unread" class="fade-up fade-up-2">
+        <div class="notif-list" id="unreadList">
+          <div class="skeleton" style="height:72px;border-radius:14px"></div>
+          <div class="skeleton" style="height:72px;border-radius:14px"></div>
+          <div class="skeleton" style="height:72px;border-radius:14px"></div>
+        </div>
+      </div>
+
+      <!-- Archived Panel -->
+      <div id="panel-archived" style="display:none" class="fade-up fade-up-2">
+        <div class="notif-list" id="archivedList"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/axios-config.js"></script>
+<script src="/js/notifications.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+  requireAuth();
+
+  // User
+  var user = getCurrentUser();
+  if (user) {
+    var n = document.getElementById('userName');
+    var r = document.getElementById('userRole');
+    var a = document.getElementById('userAvatar');
+    if (n) n.textContent = user.fullName || user.name || user.username || 'User';
+    if (r) r.textContent = user.role || 'Member';
+    if (a) {
+      a.textContent = getInitials(user.fullName || user.name || 'U');
+      a.style.background = 'linear-gradient(135deg,' + stringToColor(user.fullName || '') + ',' + stringToColor((user.fullName || '') + '1') + ')';
+    }
+  }
+
+  // Logout
+  document.getElementById('logoutBtn')?.addEventListener('click', function() {
+    if (confirm('Logout?')) logout();
+  });
+
+  // Tabs
+  document.getElementById('notifTabs').addEventListener('click', function(e) {
+    var tab = e.target.closest('.notif-tab');
+    if (!tab) return;
+    document.querySelectorAll('.notif-tab').forEach(function(t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+    if (tab.dataset.tab === 'unread') {
+      document.getElementById('panel-unread').style.display   = 'block';
+      document.getElementById('panel-archived').style.display = 'none';
+    } else {
+      document.getElementById('panel-unread').style.display   = 'none';
+      document.getElementById('panel-archived').style.display = 'block';
+      renderArchived();
+    }
+  });
+
+  // Mark all
+  document.getElementById('markAllBtn')?.addEventListener('click', async function() {
+    await markAllNotifsRead();
+    await loadUnread();
+  });
+
+  await loadUnread();
+});
+
+async function loadUnread() {
+  var notifs = await fetchNotifications();
+  renderUnread(notifs);
+}
+
+function renderUnread(notifs) {
+  var list = document.getElementById('unreadList');
+  var sub  = document.getElementById('pageSubtitle');
+  var cnt  = document.getElementById('unreadCount');
+
+  if (cnt) cnt.textContent = notifs.length ? '(' + notifs.length + ')' : '';
+  if (sub) sub.textContent = notifs.length + ' unread notification' + (notifs.length !== 1 ? 's' : '');
+
+  if (!notifs.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128276;</div><h3>All caught up!</h3><p>No unread notifications.</p></div>';
+    return;
+  }
+
+  list.innerHTML = notifs.map(function(n) {
+    return '<div class="notif-item unread" id="ni-' + n._id + '">' +
+      '<div class="notif-icon">&#128276;</div>' +
+      '<div class="notif-body">' +
+        '<div class="notif-msg">' + escHtml(n.message) + '</div>' +
+        '<div class="notif-time">' + relativeTime(n.createdAt) + '</div>' +
+      '</div>' +
+      '<div class="notif-unread-dot"></div>' +
+      '<button class="mark-read-btn" onclick="handleMarkRead(\'' + n._id + '\')">Mark read</button>' +
+    '</div>';
+  }).join('');
+}
+
+async function handleMarkRead(id) {
+  await markAsRead(id);
+  var el = document.getElementById('ni-' + id);
+  if (el) el.remove();
+  var sub = document.getElementById('pageSubtitle');
+  var remaining = document.querySelectorAll('.notif-item.unread').length;
+  if (sub) sub.textContent = remaining + ' unread notification' + (remaining !== 1 ? 's' : '');
+  var cnt = document.getElementById('unreadCount');
+  if (cnt) cnt.textContent = remaining ? '(' + remaining + ')' : '';
+  if (!remaining) {
+    document.getElementById('unreadList').innerHTML = '<div class="empty-state"><div class="empty-icon">&#128276;</div><h3>All caught up!</h3><p>No unread notifications.</p></div>';
+  }
+}
+
+function renderArchived() {
+  var list    = document.getElementById('archivedList');
+  var archive = getArchivedNotifications();
+
+  if (!archive.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128230;</div><h3>No archived notifications</h3><p>Read notifications will appear here.</p></div>';
+    return;
+  }
+
+  list.innerHTML = archive.map(function(n) {
+    return '<div class="notif-item">' +
+      '<div class="notif-icon" style="background:var(--bg)">&#10003;</div>' +
+      '<div class="notif-body">' +
+        '<div class="notif-msg" style="color:var(--text-muted)">' + escHtml(n.message) + '</div>' +
+        '<div class="notif-time">' + relativeTime(n.createdAt) + ' &middot; <span class="archived-label">Read</span></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

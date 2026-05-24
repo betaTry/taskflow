@@ -1,0 +1,86 @@
+.notif-list { display: flex; flex-direction: column; gap: 10px; max-width: 720px; }
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    transition: all .2s;
+    position: relative;
+}
+.notif-item.unread {
+    border-left: 4px solid var(--accent-1);
+    background: rgba(108,99,255,.03);
+}
+.notif-item:hover { box-shadow: var(--shadow); transform: translateX(3px); }
+
+.notif-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    background: rgba(108,99,255,.12);
+}
+.notif-body { flex: 1; min-width: 0; }
+.notif-msg  { font-size: .9rem; font-weight: 500; line-height: 1.45; }
+.notif-time { font-size: .75rem; color: var(--text-muted); margin-top: 4px; }
+
+.notif-unread-dot {
+    width: 8px; height: 8px;
+    background: var(--accent-1);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+}
+
+.mark-read-btn {
+    font-size: .75rem;
+    color: var(--accent-1);
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 6px;
+    transition: background .18s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.mark-read-btn:hover { background: rgba(108,99,255,.1); }
+
+.notif-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 20px;
+    width: fit-content;
+}
+.notif-tab {
+    padding: 7px 18px;
+    border-radius: 7px;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .18s;
+}
+.notif-tab.active { background: var(--accent-1); color: #fff; }
+.notif-tab:not(.active):hover { color: var(--accent-1); }
+
+.archived-label {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    padding: 3px 10px;
+    background: var(--bg);
+    border-radius: 6px;
+}

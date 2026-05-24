@@ -7,6 +7,10 @@ services:
       - "3000:3000"
     env_file:
       - ./backend/.env
+    volumes:
+      - ./backend:/app                  
+      - ./frontend:/app/frontend        
+      - /app/node_modules               
     depends_on:
       - mongo
 

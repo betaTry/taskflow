@@ -5,7 +5,6 @@
  * 
  */
 
-
 const router = require('express').Router()
 const mongoose = require('mongoose')
 const Project = require('../models/Project')
@@ -17,10 +16,14 @@ router.get('/', authMiddleware, async (req, res) => {
     const userId = req.user.id
     const now = new Date()
 
-    // 1. count active projects owned by the user
+    // 1. count active projects where user is owner OR member
+    // FIX: was { owner: userId, status: 'actif' } — missed member projects
     const activeProjects = await Project.countDocuments({
-      owner: userId,
-      status: 'actif'
+      status: 'actif',
+      $or: [
+        { owner: userId },
+        { members: userId }
+      ]
     })
 
     // 2. aggregation pipeline for task metrics

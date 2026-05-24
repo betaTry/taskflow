@@ -15,12 +15,20 @@ router.get('/', authMiddleware, async (req, res) => {
     const limit = parseInt(req.query.limit) || 10
     const skip = (page - 1) * limit
 
-    const projects = await Project.find({ owner: req.user.id })
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 })
+    const query = {
+      $or: [
+        { owner: req.user.id },
+        { members: req.user.id }
+      ]
+    }
 
-    const total = await Project.countDocuments({ owner: req.user.id })
+    const projects = await Project.find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .populate('owner', 'fullName email')
+
+    const total = await Project.countDocuments(query)
 
     res.json({
       data: projects,
@@ -37,7 +45,14 @@ router.get('/', authMiddleware, async (req, res) => {
 //  GET ONE PROJECT 
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
-    const project = await Project.findOne({ _id: req.params.id, owner: req.user.id })
+    const project = await Project.findOne({
+      _id: req.params.id,
+      $or: [
+        { owner: req.user.id },
+        { members: req.user.id }
+      ]
+    }).populate('owner', 'fullName email')
+    
     if (!project) return res.status(404).json({ message: 'Project not found' })
     res.json(project)
   } catch (err) {
