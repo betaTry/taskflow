@@ -15,9 +15,26 @@ const createNotification = require('../utils/createNotification')
 
 
 //  GET MY ASSIGNED TASKS (for dashboard) 
+
+
 router.get('/my-tasks', authMiddleware, async (req, res) => {
   try {
-    const tasks = await Task.find({ assignedTo: req.user.id })
+    // Get all projects where user is owner or member
+    const projects = await Project.find({
+      $or: [{ owner: req.user.id }, { members: req.user.id }]
+    }).select('_id owner')
+
+    const ownedProjectIds  = projects.filter(p => String(p.owner) === String(req.user.id)).map(p => p._id)
+    const memberProjectIds = projects.filter(p => String(p.owner) !== String(req.user.id)).map(p => p._id)
+
+    // Owner sees ALL tasks in their projects
+    // Member sees ONLY tasks assigned to them
+    const tasks = await Task.find({
+        $or: [
+          { project: { $in: ownedProjectIds } },
+          { project: { $in: memberProjectIds }, assignedTo: req.user.id },
+        ]
+      })
       .populate('project', 'title')
       .sort({ createdAt: -1 })
 
@@ -27,13 +44,22 @@ router.get('/my-tasks', authMiddleware, async (req, res) => {
   }
 })
 
-// ─── GET ALL TASKS FOR A PROJECT (with filtering & pagination) ───
+//  GET ALL TASKS FOR A PROJECT (with filtering & pagination) 
 router.get('/project/:projectId', authMiddleware, async (req, res) => {
   try {
     const { status, priority, assignedTo, search, page = 1, limit = 10 } = req.query
 
-    // build filter conditionally — only add condition if param exists
+    // Check if current user is the project owner
+    const project = await Project.findById(req.params.projectId).select('owner')
+    const isOwner = project && String(project.owner) === String(req.user.id)
+
+    // Build filter
     const filter = { project: req.params.projectId }
+
+    // If not owner, only show tasks assigned to this user
+    if (!isOwner) {
+      filter.assignedTo = req.user.id
+    }
 
     if (status) filter.status = status
     if (priority) filter.priority = priority
@@ -81,17 +107,16 @@ router.get('/:id', authMiddleware, async (req, res) => {
 //  CREATE TASK 
 router.post('/', authMiddleware, validateTask, async (req, res) => {
   try {
-    const { title, description, priority, status, deadline, project } = req.body
+    const { title, description, priority, status, deadline, project, assignedTo } = req.body
 
     const existingProject = await Project.findOne({ _id: project, owner: req.user.id })
     if (!existingProject) {
       return res.status(404).json({ message: 'Project not found' })
     }
 
-    const task = new Task({ title, description, priority, status, deadline, project })
+    const task = new Task({ title, description, priority, status, deadline, project, assignedTo: assignedTo || null })
     await task.save()
 
-    // log activity
     await logActivity('task_created', project, req.user.id, `Task "${title}" was created`)
 
     res.status(201).json(task)
@@ -103,11 +128,10 @@ router.post('/', authMiddleware, validateTask, async (req, res) => {
 //  UPDATE TASK 
 router.put('/:id', authMiddleware, validateTask, async (req, res) => {
   try {
-    const { title, description, priority, status, deadline } = req.body
-
+    const { title, description, priority, status, deadline, assignedTo } = req.body
     const task = await Task.findByIdAndUpdate(
       req.params.id,
-      { title, description, priority, status, deadline },
+      { title, description, priority, status, deadline, assignedTo: assignedTo || null },
       { new: true }
     )
 
