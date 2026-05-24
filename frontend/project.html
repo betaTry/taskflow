@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project — TaskFlow</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/project.css">
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚡</div>
+      <span>TaskFlow</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Main</span>
+      <a href="dashboard.html" class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="projects.html" class="nav-item active">
+        <span class="nav-icon">📁</span> Projects
+        <span class="nav-badge" id="projectCount">—</span>
+      </a>
+      <a href="tasks.html" class="nav-item" id="navTasks">
+        <span class="nav-icon">✅</span> My Tasks
+        <span class="nav-badge" id="taskCount">—</span>
+      </a>
+
+      <span class="nav-section-label" style="margin-top:8px">Workspace</span>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">👥</span> Team
+      </a>
+      <a href="notifications.html" class="nav-item" id="navNotifs">
+        <span class="nav-icon">🔔</span> Notifications
+        <span class="nav-badge" id="notifBadge" style="display:none"></span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card" id="userCard">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading…</div>
+          <div class="user-role" id="userRole">Member</div>
+        </div>
+        <button class="icon-btn" id="logoutBtn" title="Logout" style="border:none;background:none;width:26px;height:26px;font-size:.85rem;color:var(--text-muted)">🚪</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+      <div style="display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--text-muted)">
+        <a href="projects.html" style="color:var(--text-muted);transition:color .18s" onmouseover="this.style.color='var(--accent-1)'" onmouseout="this.style.color='var(--text-muted)'">Projects</a>
+        <span>/</span>
+        <span id="breadcrumbName" style="color:var(--text);font-weight:600">Loading…</span>
+      </div>
+      <div class="topbar-actions" style="margin-left:auto">
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <button class="icon-btn" id="notifBtn">🔔<span class="notif-dot" id="notifDot" style="display:none"></span></button>
+        <button class="btn btn-primary btn-sm" id="addTaskBtn">＋ Add Task</button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <main class="page-body" id="pageBody">
+      <!-- Skeleton -->
+      <div class="skeleton" style="height:180px;border-radius:20px;margin-bottom:24px"></div>
+      <div class="skeleton" style="height:44px;border-radius:10px;margin-bottom:24px"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div class="skeleton" style="height:300px;border-radius:16px"></div>
+        <div class="skeleton" style="height:300px;border-radius:16px"></div>
+        <div class="skeleton" style="height:300px;border-radius:16px"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add / Edit Task Modal -->
+<div class="modal-backdrop" id="taskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="taskModalTitle">Add Task</h2>
+      <button class="modal-close" data-close="taskModal">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Task Title *</label>
+      <input type="text" class="form-input" id="tTitle" placeholder="What needs to be done?" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="tDesc" placeholder="Add more details…" style="min-height:70px"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-select" id="tPriority">
+          <option value="basse">🟢 Low</option>
+          <option value="moyenne" selected>🟡 Medium</option>
+          <option value="haute">🔴 High</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="tStatus">
+          <option value="à faire" selected>📋 To Do</option>
+          <option value="en cours">⚡ In Progress</option>
+          <option value="terminé">✅ Done</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Deadline</label>
+      <input type="date" class="form-input" id="tDue" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Assign To</label>
+      <select class="form-select" id="tAssignee">
+        <option value="">— Unassigned —</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-outline" data-close="taskModal">Cancel</button>
+      <button class="btn btn-primary" id="saveTaskBtn">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Task Modal -->
+<div class="modal-backdrop" id="deleteTaskModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2 class="modal-title">Delete Task</h2>
+      <button class="modal-close" data-close="deleteTaskModal">✕</button>
+    </div>
+    <p style="color:var(--text-muted);margin-bottom:24px;font-size:.92rem">
+      Are you sure you want to delete <strong id="deleteTaskName"></strong>? This cannot be undone.
+    </p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-outline" data-close="deleteTaskModal">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteTaskBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Project Modal -->
+<div class="modal-backdrop" id="editProjectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Edit Project</h2>
+      <button class="modal-close" data-close="editProjectModal">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Project Name *</label>
+      <input type="text" class="form-input" id="epName" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="epDesc"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Start Date</label>
+        <input type="date" class="form-input" id="epStart" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <input type="date" class="form-input" id="epEnd" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="epStatus">
+        <option value="actif">Active</option>
+        <option value="en pause">On Hold</option>
+        <option value="archivé">Archived</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-outline" data-close="editProjectModal">Cancel</button>
+      <button class="btn btn-primary" id="saveEditProjectBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Invite Member Modal -->
+<div class="modal-backdrop" id="inviteMemberModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h2 class="modal-title">Invite Member</h2>
+      <button class="modal-close" data-close="inviteMemberModal">&#x2715;</button>
+    </div>
+    <p style="color:var(--text-muted);font-size:.88rem;margin-bottom:18px">Enter the email address of the person you want to invite. They must already have a TaskFlow account.</p>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input type="email" class="form-input" id="inviteEmail" placeholder="colleague@example.com" onkeydown="if(event.key==='Enter')inviteMember()" />
+      <div id="inviteError" style="color:var(--accent-2);font-size:.8rem;margin-top:6px;min-height:18px"></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-outline" data-close="inviteMemberModal">Cancel</button>
+      <button class="btn btn-primary" id="inviteBtn" onclick="inviteMember()">Invite</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/axios-config.js"></script>
+<script src="/js/notifications.js"></script>
+<script src="/js/project.js"></script>
+</body>
+</html>

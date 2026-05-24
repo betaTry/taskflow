@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Tasks — TaskFlow</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/tasks.css">
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚡</div>
+      <span>TaskFlow</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Main</span>
+      <a href="dashboard.html" class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="projects.html" class="nav-item">
+        <span class="nav-icon">📁</span> Projects
+        <span class="nav-badge" id="projectCount">—</span>
+      </a>
+      <a href="tasks.html" class="nav-item active" id="navTasks">
+        <span class="nav-icon">✅</span> My Tasks
+        <span class="nav-badge" id="taskCount">—</span>
+      </a>
+
+      <span class="nav-section-label" style="margin-top:8px">Workspace</span>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">👥</span> Team
+      </a>
+      <a href="notifications.html" class="nav-item" id="navNotifs">
+        <span class="nav-icon">🔔</span> Notifications
+        <span class="nav-badge" id="notifBadge" style="display:none"></span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card" id="userCard">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading…</div>
+          <div class="user-role" id="userRole">Member</div>
+        </div>
+        <button class="icon-btn" id="logoutBtn" title="Logout" style="border:none;background:none;width:26px;height:26px;font-size:.85rem;color:var(--text-muted)">🚪</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+      <span class="topbar-title">My Tasks</span>
+      <div class="topbar-actions" style="margin-left:auto">
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">&#127769;</button>
+        <button class="icon-btn" id="notifBtn">
+          &#128276;
+          <span class="notif-dot" id="notifDot" style="display:none"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <main class="page-body">
+
+      <!-- Header -->
+      <div class="page-header fade-up">
+        <div>
+          <h1>My Tasks</h1>
+          <p id="pageSubtitle">Loading your tasks...</p>
+        </div>
+        <a href="projects.html" class="btn btn-primary">&#128193; Go to Projects</a>
+      </div>
+
+      <!-- Stats -->
+      <div class="tasks-stats fade-up fade-up-1" id="tasksStats">
+        <div class="tstat">
+          <div class="tstat-icon" style="background:rgba(123,120,168,.12)">&#128203;</div>
+          <div><div class="tstat-val" id="statTodo">—</div><div class="tstat-label">To Do</div></div>
+        </div>
+        <div class="tstat">
+          <div class="tstat-icon" style="background:rgba(108,99,255,.12)">&#9889;</div>
+          <div><div class="tstat-val" id="statInProgress">—</div><div class="tstat-label">In Progress</div></div>
+        </div>
+        <div class="tstat">
+          <div class="tstat-icon" style="background:rgba(67,233,123,.12)">&#9989;</div>
+          <div><div class="tstat-val" id="statDone">—</div><div class="tstat-label">Done</div></div>
+        </div>
+        <div class="tstat">
+          <div class="tstat-icon" style="background:rgba(255,101,132,.12)">&#9888;</div>
+          <div><div class="tstat-val" id="statOverdue">—</div><div class="tstat-label">Overdue</div></div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="tasks-toolbar fade-up fade-up-2">
+        <div class="tasks-search">
+          <span class="s-icon">&#128269;</span>
+          <input type="text" id="searchInput" placeholder="Search tasks..." />
+        </div>
+
+        <div class="filter-group" id="priorityFilter">
+          <div class="filter-chip active" data-p="all">All</div>
+          <div class="filter-chip" data-p="haute"  style="color:#ff6584">High</div>
+          <div class="filter-chip" data-p="moyenne" style="color:#f7971e">Medium</div>
+          <div class="filter-chip" data-p="basse"  style="color:#43e97b">Low</div>
+        </div>
+
+        <div class="filter-group" id="projectFilter">
+          <div class="filter-chip active" data-proj="all">All Projects</div>
+        </div>
+      </div>
+
+      <!-- Kanban Board -->
+      <div class="kanban-board fade-up fade-up-3" id="kanbanBoard">
+        <!-- Skeleton -->
+        <div class="kanban-col"><div class="skeleton" style="height:200px;border-radius:10px"></div></div>
+        <div class="kanban-col"><div class="skeleton" style="height:200px;border-radius:10px"></div></div>
+        <div class="kanban-col"><div class="skeleton" style="height:200px;border-radius:10px"></div></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/axios-config.js"></script>
+<script src="/js/notifications.js"></script>
+<script src="/js/tasks.js"></script>
+</body>
+</html>
